@@ -22,7 +22,7 @@ function look_for_new_achievements__legend()
                     continue;  // No cheating Veerender, you can't award it to yourself.  :P
                 }
                 if (preg_match("/^\@$u A legend in our community\.$/", $r->text) == 1) {
-                    award_achievement($twitter, 'legend', $u, twitter_status_url('Veeren_Jubbal', $r->id_str, $r->in_reply_to_status_id_str));
+                    award_achievement('legend', $u, twitter_status_url('Veeren_Jubbal', $r->id_str, $r->in_reply_to_status_id_str));
                 }
             }
         }
