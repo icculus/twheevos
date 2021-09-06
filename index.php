@@ -162,4 +162,3 @@ if (($operation == '') || ($document == '')) {
 
 exit(0);
 ?>
-
