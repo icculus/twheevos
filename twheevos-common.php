@@ -9,7 +9,7 @@ $baseurl = BASE_URL;
 
 $achievements = [
     'legend' => [
-        'title' => '"A Legend In Our Community"',
+        'title' => 'A Legend In Our Community',
         'desc' => 'This achievement is awarded to those that <a href="https://twitter.com/Veeren_Jubbal">@Veeren_Jubbal</a> replies to with the magic phrase.',
     ]
 ];
