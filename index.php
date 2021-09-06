@@ -92,12 +92,26 @@ EOS;
 function display_mainpage()
 {
     print_header("coming soon");
-    print("<center>(coming soon.)</center>");
+    print(<<<EOS
+<center>
+<p>(coming soon.)</p>
+<p>[
+<a href="https://twitter.com/twheevos">twitter</a>
+|
+<a href="https://github.com/icculus/twheevos">source code</a>
+|
+<a href="https://patreon.com/icculus">DONATE</a>
+]
+</p>
+</center>"
+EOS
+);
     print_footer();
 }
 
 function display_award($awardid)
 {
+    global $baseurl;
     $awardid = intval($awardid);
     $row = query_award($awardid);
     if ($row === false) {
@@ -106,26 +120,26 @@ function display_award($awardid)
 
     global $achievements;
     $ach = $achievements[$row['achievement']];
-    $achname = $ach['name'];
+    $achname = $ach['title'];
     $achdesc = $ach['desc'];
 
-    $username = $row['username'];
+    $username = $row['user'];
     $when = timestamp_to_string($row['timestamp']);
     $whyurl = $row['whyurl'];
 
     print_header('Achievement unlocked by @' . $username . "!");
-    $str = <<<EOS
+    print(<<<EOS
     <center>
       <p><h1>Achievement unlocked!</h1></p>
       <p><h2>$achname</h2></p>
-      <p>This achievement awarded to <a href="https://twitter.com/$username">\@username</a>
+      <p>This achievement awarded to <a href="https://twitter.com/$username">@$username</a>
       on $when because of <a href="$whyurl">this</a>.</p>
-      <p><img src="$baseurl/image/$awardid.jpg" /></p>
+      <p><img width="75%" src="$baseurl/image/$awardid.jpg" /></p>
       <p>$achdesc</p>
     </center>
-EOS;
+EOS
+);
 
-    print("<p><center><h1>Achievement unlocked!</h1></center></p>\n");
     print_footer();
 }
 
@@ -136,13 +150,14 @@ function display_image($awardid)
     $row = query_award($awardid);
     $ach = $achievements[$row['achievement']];
     header('Content-Type: image/jpeg');
-    echo gen_image($row['username'], $ach['title']);
+    echo gen_image($row['user'], $ach['title']);
 }
 
 
 // Mainline!
 
 $reqargs = explode('/', preg_replace('/^\/?(.*?)\/?$/', '$1', $_SERVER['PHP_SELF']));
+array_shift($reqargs);
 $reqargcount = count($reqargs);
 //print_r($reqargs);
 
