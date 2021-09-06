@@ -1,9 +1,11 @@
 <?php
 
+require_once('config.php');
+
 $dbname = 'twheevos.sqlite3';
 $db = NULL;
 $title = 'twheevos';
-$baseurl = 'https://icculus.org/twheevos';
+$baseurl = BASE_URL;
 
 $achievements = [
     'legend' => [
@@ -11,18 +13,6 @@ $achievements = [
         'desc' => 'This achievement is awarded to those that <a href="https://twitter.com/Veeren_Jubbal">@Veeren_Jubbal</a> replies to with the magic phrase.',
     ]
 ];
-
-function get_database()
-{
-    global $db, $dbname;
-    if ($db == NULL) {
-        $db = new SQLite3($dbname, SQLITE3_OPEN_READONLY);
-        if ($db == NULL) {
-            fail503("Couldn't access database. Please try again later.");
-        }
-    }
-    return $db;
-}
 
 function gen_image($username, $awardname)
 {
@@ -62,6 +52,11 @@ function query_award($awardid)
     $stmt->bindValue(':awardid', "$awardid");
     $results = $stmt->execute();
     return $results->fetchArray();
+}
+
+function twitter_status_url($username, $tweetid)
+{
+    return "https://twitter.com/$username/status/$tweetid";
 }
 
 function timestamp_to_string($t)

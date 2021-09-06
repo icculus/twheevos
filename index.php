@@ -16,6 +16,18 @@ function fail($response, $msg, $url = NULL)
 function fail404($msg) { fail('404 Not Found', $msg); }
 function fail503($msg) { fail('503 Service Unavailable', $msg); }
 
+function get_database()
+{
+    global $db, $dbname;
+    if ($db == NULL) {
+        $db = new SQLite3($dbname, SQLITE3_OPEN_READONLY);
+        if ($db == NULL) {
+            fail503("Couldn't access database. Please try again later.");
+        }
+    }
+    return $db;
+}
+
 function print_header($subtitle)
 {
     global $title, $baseurl;
