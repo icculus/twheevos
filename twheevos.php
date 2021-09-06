@@ -1,16 +1,6 @@
 <?php
 
-$dbname = 'twheevos.sqlite3';
-$db = NULL;
-$title = 'twheevos';
-$baseurl = 'https://icculus.org/twheevos';
-
-$achievements = [
-    'legend' => [
-        'title' => '"A Legend In Our Community"',
-        'desc' => 'This achievement is awarded to those that @Veeren_Jubbal replies to with the magic phrase.',
-    ]
-];
+require_once('twheevos-common.php');
 
 function fail($response, $msg, $url = NULL)
 {
@@ -25,58 +15,6 @@ function fail($response, $msg, $url = NULL)
 
 function fail404($msg) { fail('404 Not Found', $msg); }
 function fail503($msg) { fail('503 Service Unavailable', $msg); }
-
-function get_database()
-{
-    global $db, $dbname;
-    if ($db == NULL) {
-        $db = new SQLite3($dbname, SQLITE3_OPEN_READONLY);
-        if ($db == NULL) {
-            fail503("Couldn't access database. Please try again later.");
-        }
-    }
-    return $db;
-}
-
-function gen_image($username, $awardname)
-{
-    $username = '@' . $username;
-    $objImage = new Imagick('achievement.jpg');
-
-    $imgSize = $objImage->getImageGeometry();
-    $imgWidth = $imgSize['width'];
-    $imgHeight = $imgSize['height'];
-
-    $objText = new ImagickDraw();
-    $objText->setFillColor(new ImagickPixel('yellow'));
-    $objText->setGravity(Imagick::GRAVITY_NORTHWEST);
-    $objText->setFontSize(80);
-    $objImage->annotateImage($objText, 70, 50, 0, 'Achievement');
-    $objImage->annotateImage($objText, 110, 150, 0, 'Unlocked!');
-
-    $objText->setFontSize(85);
-    $metrics = $objImage->queryFontMetrics($objText, $username);
-    $x = intval($imgWidth - $metrics['textWidth']) / 2;
-    $y = intval($imgHeight - $metrics['textHeight']) + 30;
-    $objImage->annotateImage($objText, $x, $y, 0, $username);
-
-    $objText->setFontSize(60);
-    $metrics = $objImage->queryFontMetrics($objText, $awardname);
-    $x = intval($imgWidth - $metrics['textWidth']) / 10;
-    $y = (intval($imgHeight - $metrics['textHeight']) / 2) + 30;
-    $objImage->annotateImage($objText, $x, $y, 0, $awardname);
-
-    return $objImage;
-}
-
-function query_award($awardid)
-{
-    $db = get_database();
-    $stmt = $db->prepare('select * from awards where id = :awardid limit 1;');
-    $stmt->bindValue(':awardid', "$awardid");
-    $results = $stmt->execute();
-    return $results->fetchArray();
-}
 
 function print_header($subtitle)
 {
@@ -138,11 +76,6 @@ EOS;
     print($str);
 }
 
-function timestamp_to_string($t)
-{
-    return strftime('%D %T %Z', $t);
-}
-
 function display_mainpage()
 {
     print_header("coming soon");
@@ -191,18 +124,6 @@ function display_image($awardid)
     $ach = $achievements[$row['achievement']];
     header('Content-Type: image/jpeg');
     echo gen_image($row['username'], $ach['title']);
-}
-
-function award_achievement($achname, $user, $whyurl)
-{
-    global $achievements;
-    $ach = $achievements[$achname];
-    $db = get_database();
-    $stmt = $db->prepare('insert into awards (achievement, user, whyurl, timestamp) values (:achievement, :user, :whyurl, NOW());');
-    $stmt->bindValue(':achievement', $achname);
-    $stmt->bindValue(':user', $user);
-    $stmt->bindValue(':whyurl', $whyurl);
-    return $stmt->execute() === false ? false : $db->lastInsertRowID();
 }
 
 
