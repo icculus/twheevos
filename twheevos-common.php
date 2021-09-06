@@ -27,7 +27,7 @@ function get_database()
 function gen_image($username, $awardname)
 {
     $username = '@' . $username;
-    $objImage = new Imagick('achievement.jpg');
+    $objImage = new Imagick('static_files/achievement.jpg');
 
     $imgSize = $objImage->getImageGeometry();
     $imgWidth = $imgSize['width'];
