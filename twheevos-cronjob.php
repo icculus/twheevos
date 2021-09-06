@@ -9,7 +9,18 @@ foreach ($achievements as $k => $v) {
     require_once("twheevos-achievement-$k.php");
 }
 
+function prep_twitter()
+{
+    return new TwitterAPIExchange([
+        'consumer_key' => CONSUMER_KEY,
+        'consumer_secret' => CONSUMER_SECRET,
+        'oauth_access_token' => OAUTH_TOKEN,
+        'oauth_access_token_secret' => OAUTH_SECRET
+    ]);
+}
+
 function get_database()
+
 {
     global $db, $dbname;
     if ($db == NULL) {
@@ -40,9 +51,61 @@ function prep_database()
     $db->exec($schema);
 }
 
-function tweet_achievement($ach, $user, $whyurl, $rowid)
+function tweet_achievement($ach, $user, $whyurl, $rowid, $in_reply_to_status_id=NULL)
 {
-    print("WRITE ME tweet_achievement\n");
+    global $baseurl;
+    $achname = $ach['title'];
+
+    $mediaid = NULL;
+
+    // upload the image...
+    $twitter = prep_twitter();
+    $json = $twitter->buildOAuth('https://upload.twitter.com/1.1/media/upload.json', 'POST')->
+        setPostfields([
+            'media_category' => 'tweet_image',
+            'media_data' => base64_encode(gen_image($user, $achname))
+        ])->performRequest();
+    $response = json_decode($json, false, JSON_INVALID_UTF8_SUBSTITUTE);
+    //print($json);
+    //print_r($response);
+    if ($response == NULL) {
+        print("Failed to post image to Twitter AT ALL\n");
+        return false;
+    } else if (is_object($response) && isset($response->errors)) {
+        print("media: Post of image to Twitter failed:\n");
+        print_r($response);
+        return false;
+    } else {
+        $mediaid = $response->media_id_string;
+    }
+
+    // ...and tweet!
+    $status = "@$user Achievement unlocked: $achname.\n\n$baseurl/award/$rowid";
+
+    $twitter = prep_twitter();
+    $postfields = [
+        'status' => $status,
+        'media_ids' => "$mediaid",
+        'trim_user' => true
+    ];
+    if (isset($in_reply_to_status_id)) {
+        $postfields['in_reply_to_status_id'] = $in_reply_to_status_id;
+    }
+    $json = $twitter->buildOAuth('https://api.twitter.com/1.1/statuses/update.json', 'POST')->
+        setPostfields($postfields)->performRequest();
+    $response = json_decode($json, false, JSON_INVALID_UTF8_SUBSTITUTE);
+    //print($json);
+    //print_r($response);
+    if ($response == NULL) {
+        print("Failed to post tweet to Twitter AT ALL\n");
+        return false;
+    } else if (is_object($response) && isset($response->errors)) {
+        print("media: Post of tweet to Twitter failed:\n");
+        print_r($response);
+        return false;
+    }
+
+    print("Posted tweet!\n");
     return true;
 }
 
@@ -83,30 +146,19 @@ function award_achievement($achname, $user, $whyurl)
     return tweet_achievement($ach, $user, $whyurl, $rowid);
 }
 
-function look_for_new_achievements($twitter)
+function look_for_new_achievements()
 {
     global $achievements;
     foreach ($achievements as $k => $v) {
         // it's extremely useful and also completely horrifying that PHP lets you do this.
         $fn = "look_for_new_achievements__$k";
-        $fn($k, $twitter);
+        $fn();
     }
-}
-
-function prep_twitter()
-{
-    return new TwitterAPIExchange([
-        'consumer_key' => CONSUMER_KEY,
-        'consumer_secret' => CONSUMER_SECRET,
-        'oauth_access_token' => OAUTH_TOKEN,
-        'oauth_access_token_secret' => OAUTH_SECRET
-    ]);
 }
 
 
 // Mainline!
 prep_database();
-$twitter = prep_twitter();
-look_for_new_achievements($twitter);
+look_for_new_achievements();
 exit(0);
 ?>
