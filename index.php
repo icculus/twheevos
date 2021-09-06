@@ -101,6 +101,8 @@ function display_mainpage()
 <a href="https://github.com/icculus/twheevos">source code</a>
 |
 <a href="https://patreon.com/icculus">DONATE</a>
+|
+<a href="https://www.istockphoto.com/vector/hand-holding-trophy-cup-tophy-form-lines-triangles-and-particle-style-design-gm1063311616-284272611">original trophy image</a>
 ]
 </p>
 </center>"
