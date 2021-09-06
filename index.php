@@ -23,7 +23,8 @@ function print_header($subtitle)
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link rel="icon" type="image/ico" href="/static_files/favicon.ico" />
+    <link rel="shortcut icon" type="image/ico" href="/static_files/favicon.ico" />
+    <link rel="icon" type="image/png" href="/static_files/favicon.png" />
     <title>$title - $subtitle</title>
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="@twheevos" />
