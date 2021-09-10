@@ -127,7 +127,7 @@ function award_achievement($achname, $user, $whyurl)
         $id = $row['id'];
         $when = timestamp_to_string($row['timestamp']);
         $whyurl = $row['whyurl'];
-        print("User '$user' already has the '$achname' achievement! id=$id, when=$when, why=$whyurl\n");
+        //print("User '$user' already has the '$achname' achievement! id=$id, when=$when, why=$whyurl\n");
         return false;
     }
 
